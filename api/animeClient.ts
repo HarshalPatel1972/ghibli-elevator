@@ -81,5 +81,15 @@ export const animeClient = {
       console.error(`Failed to fetch anime ${id}`, error);
       return null;
     }
+  },
+
+  getRandomAnime: async (): Promise<Anime | null> => {
+    try {
+        const response = await client.get('/random/anime');
+        return response.data.data;
+    } catch (error) {
+        console.error("Failed to fetch random anime", error);
+        return null;
+    }
   }
 };

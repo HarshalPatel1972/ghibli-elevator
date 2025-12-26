@@ -11,18 +11,23 @@ import { useElevatorSystem } from '@/hooks/useElevatorSystem';
 const FLOOR_MAP: Record<string, string> = {
   "/": "1",
   "/top-rated": "2",
-  "/movies": "3"
+  "/movies": "3",
+  "/search": "S"
 };
 
 const LABEL_MAP: Record<string, string> = {
   "1": "Trending",
   "2": "Top Rated",
-  "3": "Movies"
+  "3": "Movies",
+  "S": "Archive",
+  "Detail": "Detail",
+  "??": "Destiny"
 }
 
 export default function ElevatorFrame({ children }: { children: ReactNode }) {
-  const { currentFloor, isMoving, setFloor, callElevator } = useElevatorSystem();
+  const { currentFloor, isMoving, setFloor, callElevator, initiateTravel, arriveAtFloor } = useElevatorSystem();
   const pathname = usePathname();
+  const router = useRouter(); 
 
   // Sync initial floor based on path
   useEffect(() => {
@@ -30,6 +35,8 @@ export default function ElevatorFrame({ children }: { children: ReactNode }) {
         // Check for Detail pages
         if (pathname.includes("/anime/")) {
             setFloor("Detail");
+        } else if (pathname === "/search") {
+            setFloor("S");
         } else {
             const floor = FLOOR_MAP[pathname] || "1";
             setFloor(floor);
@@ -40,6 +47,35 @@ export default function ElevatorFrame({ children }: { children: ReactNode }) {
   const handleFloorChange = (targetFloor: string, path: string) => {
     if (targetFloor === currentFloor || isMoving) return;
     callElevator(path, targetFloor);
+  };
+
+  const handleRandom = async () => {
+      if (isMoving) return;
+      
+      // 1. Close Doors with "??" indicator
+      initiateTravel("??");
+
+      // 2. Fetch Random logic while doors are closed
+      import('@/api/animeClient').then(async (mod) => {
+          // Minimal delay to ensure doors are shut before API returns (optional, but good for UX)
+          await new Promise(r => setTimeout(r, 1000));
+          
+          const anime = await mod.animeClient.getRandomAnime();
+          
+          if (anime) {
+              router.push(`/anime/${anime.mal_id}`);
+              // Store/System will auto-update floor to "Detail" via the useEffect on pathname change
+              // But we manually arrive after a slight delay
+              setTimeout(() => {
+                  setFloor("Detail");
+                  arriveAtFloor();
+              }, 1000);
+          } else {
+              // Error handling: Open doors back on current floor or show error
+              alert("Signal Lost. Destiny Refused.");
+              arriveAtFloor();
+          }
+      });
   };
 
   return (
@@ -85,8 +121,8 @@ export default function ElevatorFrame({ children }: { children: ReactNode }) {
            <div className="h-2 border-b-2 border-wall-dark/20 w-16 my-2" />
            
            <div className="flex flex-col gap-6">
-               <ControlBtn label="R" icon={<Shuffle size={20} />} onClick={() => {}} />
-               <ControlBtn label="S" icon={<Search size={20} />} onClick={() => {}} />
+               <ControlBtn label="R" icon={<Shuffle size={20} />} active={currentFloor === "??"} onClick={handleRandom} />
+               <ControlBtn label="S" icon={<Search size={20} />} active={currentFloor === "S"} onClick={() => handleFloorChange("S", "/search")} />
            </div>
         </aside>
       </div>
