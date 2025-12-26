@@ -10,6 +10,11 @@ export function useAuth() {
   const setStoreUser = useElevatorStore(state => state.setUser);
 
   useEffect(() => {
+    if (!auth) {
+        setLoading(false);
+        return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       setStoreUser(currentUser);
@@ -26,6 +31,10 @@ export function useAuth() {
   }, [setStoreUser, syncLocalToCloud]);
 
   const login = async () => {
+    if (!auth) {
+        console.error("Authentication not initialized (missing API keys)");
+        return;
+    }
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
@@ -35,6 +44,7 @@ export function useAuth() {
   };
 
   const logout = async () => {
+    if (!auth) return;
     try {
       await signOut(auth);
     } catch (error) {
