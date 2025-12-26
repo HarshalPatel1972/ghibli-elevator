@@ -14,7 +14,9 @@ const FLOOR_MAP: Record<string, string> = {
   "/top-rated": "2",
   "/movies": "3",
   "/search": "S",
-  "/favorites": "L"
+  "/favorites": "L",
+  "/guestbook": "G",
+  "/basement": "-1"
 };
 
 const LABEL_MAP: Record<string, string> = {
@@ -23,17 +25,21 @@ const LABEL_MAP: Record<string, string> = {
   "3": "Movies",
   "S": "Archive",
   "L": "Logbook",
+  "G": "Lobby",
   "Detail": "Detail",
-  "??": "Destiny"
+  "??": "Destiny",
+  "-1": "ERROR"
 }
 
 export default function ElevatorFrame({ children }: { children: ReactNode }) {
   const { currentFloor, isMoving, setFloor, callElevator, initiateTravel, arriveAtFloor } = useElevatorSystem();
-  // We can use our audio hook though we don't have global state for BGM yet, 
-  // setting up the UI for now.
   const { playClick, playDoor, playDing } = useAudioElement();
   const [bgmPlaying, setBgmPlaying] = useState(false);
   
+  // Easter Egg State
+  const [clickCount, setClickCount] = useState(0);
+  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   // Ref for BGM
   const bgmRef = useRef<HTMLAudioElement | null>(null);
 
@@ -71,6 +77,10 @@ export default function ElevatorFrame({ children }: { children: ReactNode }) {
             setFloor("S");
         } else if (pathname === "/favorites") {
             setFloor("L");
+        } else if (pathname === "/guestbook") {
+            setFloor("G");
+        } else if (pathname === "/basement") {
+            setFloor("-1");
         } else {
             const floor = FLOOR_MAP[pathname] || "1";
             setFloor(floor);
@@ -81,24 +91,12 @@ export default function ElevatorFrame({ children }: { children: ReactNode }) {
   const handleFloorChange = (targetFloor: string, path: string) => {
     if (targetFloor === currentFloor || isMoving) return;
     playClick();
-    
-    // Sequence
-    // 1. Initial trigger -> Doors Close
-    playDoor(); // Sound of doors closing
+    playDoor(); 
     callElevator(path, targetFloor);
-    
-    // Note: The structure of callElevator in useElevatorSystem handles navigation.
-    // However, we want to play sounds at specific intervals.
-    // Ideally, we accept that callElevator does its thing, but we can't easily hook into "mid-flight" 
-    // unless we refactor useElevatorSystem to accept callbacks or we just estimate timings here.
-    // Since useElevatorSystem has hardcoded timeouts (1000ms close, 1000ms arrive), we can match that.
-    
-    // Arrival Sound
     setTimeout(() => {
-        // This is roughly when "arriveAtFloor" is called inside the hook (approx 2s total: 1s close + nav + 1s delay)
         playDing();
         setTimeout(() => {
-             playDoor(); // Sound of doors opening
+             playDoor(); 
         }, 200);
     }, 2000);
   };
@@ -107,35 +105,49 @@ export default function ElevatorFrame({ children }: { children: ReactNode }) {
       if (isMoving) return;
       playClick();
       playDoor(); // Close
-      
-      // 1. Close Doors with "??" indicator
       initiateTravel("??");
 
-      // 2. Fetch Random logic while doors are closed
       import('@/api/animeClient').then(async (mod) => {
-          // Minimal delay to ensure doors are shut before API returns (optional, but good for UX)
           await new Promise(r => setTimeout(r, 1000));
-          
           const anime = await mod.animeClient.getRandomAnime();
-          
           if (anime) {
               router.push(`/anime/${anime.mal_id}`);
-              // Store/System will auto-update floor to "Detail" via the useEffect on pathname change
-              // But we manually arrive after a slight delay
               setTimeout(() => {
                   setFloor("Detail");
                   playDing();
-                  setTimeout(() => playDoor(), 200); // Open
+                  setTimeout(() => playDoor(), 200);
                   arriveAtFloor();
               }, 1000);
           } else {
-              // Error handling: Open doors back on current floor or show error
               alert("Signal Lost. Destiny Refused.");
               playDoor();
               arriveAtFloor();
           }
       });
   };
+  
+  // Easter Egg Trigger
+  const handleDisplayClick = () => {
+      setClickCount(prev => prev + 1);
+      
+      // Reset count if idle for 2 seconds
+      if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
+      clickTimeoutRef.current = setTimeout(() => {
+          setClickCount(0);
+      }, 2000);
+  };
+  
+  useEffect(() => {
+      if (clickCount >= 5) {
+          setClickCount(0);
+          // Trigger The Basement
+          if (pathname !== "/basement" && !isMoving) {
+              // Glitch Sound?
+              // playGlitch();
+              handleFloorChange("-1", "/basement");
+          }
+      }
+  }, [clickCount, pathname, isMoving]);
 
   return (
     <div className="fixed inset-0 w-full h-full bg-wall-dark flex flex-col z-0 overflow-hidden font-sans">
@@ -152,11 +164,14 @@ export default function ElevatorFrame({ children }: { children: ReactNode }) {
          </button>
 
          {/* Bezel (Center) */}
-        <div className="bg-black px-4 md:px-12 py-2 md:py-3 rounded-lg border-2 md:border-4 border-brass-accent shadow-[0_0_30px_rgba(255,191,0,0.3)] min-w-[200px] md:min-w-[340px] text-center relative overflow-hidden">
+        <div 
+            onClick={handleDisplayClick}
+            className="bg-black px-4 md:px-12 py-2 md:py-3 rounded-lg border-2 md:border-4 border-brass-accent shadow-[0_0_30px_rgba(255,191,0,0.3)] min-w-[200px] md:min-w-[340px] text-center relative overflow-hidden cursor-pointer active:scale-95 transition-transform"
+        >
            {/* Glass Reflection */}
            <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
            
-           <span className="text-[#ffbf00] font-display text-3xl md:text-5xl tracking-widest drop-shadow-[0_0_10px_rgba(255,191,0,0.8)] relative z-10" style={{ textShadow: "0 0 15px rgba(255, 191, 0, 0.6), 0 0 30px rgba(255, 191, 0, 0.4)" }}>
+           <span className="text-[#ffbf00] font-display text-3xl md:text-5xl tracking-widest drop-shadow-[0_0_10px_rgba(255,191,0,0.8)] relative z-10" style={{ textShadow: "0 0 15px rgba(255, 191, 0, 0.6), 0 0 30px rgba(255, 191, 0, 0.4)", color: currentFloor === "-1" ? "red" : "#ffbf00" }}>
              {LABEL_MAP[currentFloor] || currentFloor}
            </span>
         </div>
@@ -169,7 +184,7 @@ export default function ElevatorFrame({ children }: { children: ReactNode }) {
         {/* Main Viewport */}
         <div className="flex-1 relative bg-bg-paper overflow-hidden z-10 flex flex-col shadow-[inset_0_0_50px_rgba(0,0,0,0.5)] md:shadow-[inset_0_0_100px_rgba(0,0,0,0.5)]">
            {/* Vignette Overlay */}
-           <div className="absolute inset-0 pointer-events-none z-20 shadow-[inset_0_0_80px_rgba(0,0,0,0.6)] md:shadow-[inset_0_0_150px_rgba(0,0,0,0.6)]" />
+           <div className={`absolute inset-0 pointer-events-none z-20 shadow-[inset_0_0_80px_rgba(0,0,0,0.6)] md:shadow-[inset_0_0_150px_rgba(0,0,0,0.6)] ${currentFloor === "-1" ? "bg-red-900/10 mix-blend-overlay" : ""}`} />
 
            {/* The content area */}
            <div className="flex-1 overflow-y-auto relative no-scrollbar z-10 pb-24 md:pb-0">
@@ -199,6 +214,7 @@ export default function ElevatorFrame({ children }: { children: ReactNode }) {
                <ControlBtn label="1" sub="Trend" active={currentFloor === "1"} onClick={() => handleFloorChange("1", "/")} />
                <ControlBtn label="2" sub="Top" active={currentFloor === "2"} onClick={() => handleFloorChange("2", "/top-rated")} />
                <ControlBtn label="3" sub="Mov" active={currentFloor === "3"} onClick={() => handleFloorChange("3", "/movies")} />
+               <ControlBtn label="G" sub="Lobby" active={currentFloor === "G"} onClick={() => handleFloorChange("G", "/guestbook")} />
            </div>
 
            {/* Divider */}
