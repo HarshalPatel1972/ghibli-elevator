@@ -95,11 +95,8 @@ function ControlBtn({ label, sub, onClick, active, icon }: any) {
             {icon ? icon : <span className="font-display font-bold text-lg md:text-xl leading-none tracking-widest">{label}</span>}
             
             {/* Anime Speed Line / Shine */}
-            <div className="absolute top-1 left-2 w-2 h-2 rounded-full bg-white/60 blur-[0.5px]" />
-            
-            {/* Sub label tooltip styled as anime caption - Adjusted Position & Z-Index */}
             {sub && (
-                <span className="hidden group-hover:block md:block absolute right-[120%] md:right-[140%] top-1/2 -translate-y-1/2 bg-black/90 text-[#ffd700] text-[10px] font-bold px-2 py-1 rounded backdrop-blur-sm border border-[#ffd700]/30 tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">
+                <span className="hidden group-hover:block md:block absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-black/90 text-[#ffd700] text-[10px] font-bold px-2 py-1 rounded backdrop-blur-sm border border-[#ffd700]/30 tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">
                     {sub}
                 </span>
             )}
