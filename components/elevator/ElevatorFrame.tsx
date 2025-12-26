@@ -31,7 +31,7 @@ export default function ElevatorFrame({ children }: { children: ReactNode }) {
   const { currentFloor, isMoving, setFloor, callElevator, initiateTravel, arriveAtFloor } = useElevatorSystem();
   // We can use our audio hook though we don't have global state for BGM yet, 
   // setting up the UI for now.
-  const { playClick } = useAudioElement();
+  const { playClick, playDoor, playDing } = useAudioElement();
   const [bgmPlaying, setBgmPlaying] = useState(false);
   
   // Ref for BGM
@@ -81,12 +81,32 @@ export default function ElevatorFrame({ children }: { children: ReactNode }) {
   const handleFloorChange = (targetFloor: string, path: string) => {
     if (targetFloor === currentFloor || isMoving) return;
     playClick();
+    
+    // Sequence
+    // 1. Initial trigger -> Doors Close
+    playDoor(); // Sound of doors closing
     callElevator(path, targetFloor);
+    
+    // Note: The structure of callElevator in useElevatorSystem handles navigation.
+    // However, we want to play sounds at specific intervals.
+    // Ideally, we accept that callElevator does its thing, but we can't easily hook into "mid-flight" 
+    // unless we refactor useElevatorSystem to accept callbacks or we just estimate timings here.
+    // Since useElevatorSystem has hardcoded timeouts (1000ms close, 1000ms arrive), we can match that.
+    
+    // Arrival Sound
+    setTimeout(() => {
+        // This is roughly when "arriveAtFloor" is called inside the hook (approx 2s total: 1s close + nav + 1s delay)
+        playDing();
+        setTimeout(() => {
+             playDoor(); // Sound of doors opening
+        }, 200);
+    }, 2000);
   };
 
   const handleRandom = async () => {
       if (isMoving) return;
       playClick();
+      playDoor(); // Close
       
       // 1. Close Doors with "??" indicator
       initiateTravel("??");
@@ -104,11 +124,14 @@ export default function ElevatorFrame({ children }: { children: ReactNode }) {
               // But we manually arrive after a slight delay
               setTimeout(() => {
                   setFloor("Detail");
+                  playDing();
+                  setTimeout(() => playDoor(), 200); // Open
                   arriveAtFloor();
               }, 1000);
           } else {
               // Error handling: Open doors back on current floor or show error
               alert("Signal Lost. Destiny Refused.");
+              playDoor();
               arriveAtFloor();
           }
       });
