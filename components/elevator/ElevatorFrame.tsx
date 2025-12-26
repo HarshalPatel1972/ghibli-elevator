@@ -240,18 +240,24 @@ function ControlBtn({ label, sub, onClick, active, icon }: any) {
         <button 
            onClick={onClick}
            className={`
-             rounded-full border-[3px] md:border-[6px] flex flex-col items-center justify-center transition-all duration-300 active:scale-95 relative group
-             w-10 h-10 md:w-16 md:h-16
+             rounded-full border-[3px] md:border-4 flex flex-col items-center justify-center transition-all duration-200 active:scale-90 relative group
+             w-10 h-10 md:w-12 md:h-12
              ${active 
-               ? 'bg-[#ffeebb] border-[#ffcc00] text-[#554400] shadow-[0_0_20px_rgba(255,200,0,0.6)] scale-105' 
-               : 'bg-brass-accent border-[#8a7020] text-wall-dark shadow-md hover:brightness-110 hover:shadow-[0_0_10px_rgba(212,175,55,0.4)]'}
+               ? 'bg-[#ffeebb] border-[#ffb300] text-[#554400] shadow-[0_0_15px_rgba(255,200,0,0.8)] scale-110 z-10' 
+               : 'bg-brass-accent border-wall-dark text-wall-dark shadow-[4px_4px_0px_rgba(0,0,0,0.3)] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_rgba(0,0,0,0.2)] hover:bg-[#e6c200]'}
            `}
         >
-            {icon ? icon : <span className="font-display font-bold text-lg md:text-2xl leading-none">{label}</span>}
-            {sub && <span className="hidden md:block absolute -bottom-6 text-[10px] font-bold text-white/50 tracking-wider uppercase font-sans text-center w-20">{sub}</span>}
+            {icon ? icon : <span className="font-display font-bold text-lg md:text-xl leading-none tracking-widest">{label}</span>}
             
-            {/* Shine effect */}
-            <div className="absolute top-1 left-1 w-3 h-3 md:w-4 md:h-4 rounded-full bg-white/30 blur-[1px]" />
+            {/* Anime Speed Line / Shine */}
+            <div className="absolute top-1 left-2 w-2 h-2 rounded-full bg-white/60 blur-[0.5px]" />
+            
+            {/* Sub label tooltip styled as anime caption */}
+            {sub && (
+                <span className="hidden group-hover:block md:block absolute -left-16 md:-left-20 bg-black/80 text-[#ffd700] text-[10px] font-bold px-2 py-1 rounded backdrop-blur-sm border border-[#ffd700]/30 tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-20">
+                    {sub}
+                </span>
+            )}
         </button>
     )
 }
