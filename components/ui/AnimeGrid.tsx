@@ -3,9 +3,12 @@
 import { Anime } from '@/api/animeClient';
 import { motion } from 'framer-motion';
 import { useElevatorSystem } from '@/hooks/useElevatorSystem';
+import { useElevatorStore } from '@/store/useElevatorStore';
+import { Heart } from 'lucide-react';
 
 export default function AnimeGrid({ items, title }: { items: Anime[], title: string }) {
    const { callElevator } = useElevatorSystem();
+   const { favorites, toggleFavorite } = useElevatorStore();
 
    return (
      <div className="p-8 pb-32">
@@ -19,7 +22,9 @@ export default function AnimeGrid({ items, title }: { items: Anime[], title: str
         </motion.h1>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-8">
-           {items.map((anime, index) => (
+           {items.map((anime, index) => {
+             const isFav = favorites.some(f => f.mal_id === anime.mal_id);
+             return (
              <motion.div
                key={anime.mal_id}
                onClick={() => callElevator(`/anime/${anime.mal_id}`, "Detail")}
@@ -36,6 +41,20 @@ export default function AnimeGrid({ items, title }: { items: Anime[], title: str
                   loading="lazy"
                 />
                 
+                {/* Favorite Button (Stop Propagation) */}
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(anime);
+                    }}
+                    className="absolute top-2 left-2 z-20 p-2 rounded-full bg-black/40 backdrop-blur hover:bg-black/60 transition-colors"
+                >
+                    <Heart 
+                        size={18} 
+                        className={`transition-colors duration-300 ${isFav ? "fill-red-500 text-red-500" : "text-white/70 hover:text-white"}`} 
+                    />
+                </button>
+
                 {/* Overlay on Hover */}
                 <div className="absolute inset-0 bg-gradient-to-t from-wall-dark/95 via-wall-dark/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
                    <h3 className="text-[#f4f1ea] font-bold text-lg leading-tight mb-2 line-clamp-3 font-display">{anime.title}</h3>
@@ -55,7 +74,7 @@ export default function AnimeGrid({ items, title }: { items: Anime[], title: str
                     </div>
                 )}
              </motion.div>
-           ))}
+             )})}
         </div>
      </div>
    )

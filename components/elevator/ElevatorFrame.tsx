@@ -1,18 +1,20 @@
 'use client';
 
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useState, useRef } from 'react';
 import { useElevatorStore } from '@/store/useElevatorStore';
 import { useRouter, usePathname } from 'next/navigation';
-import { Shuffle, Search } from 'lucide-react';
+import { Shuffle, Search, Volume2, VolumeX, Heart } from 'lucide-react';
 import ElevatorDoors from './ElevatorDoors';
 import { useElevatorSystem } from '@/hooks/useElevatorSystem';
+import { useAudioElement } from '../infrastructure/AudioSystem';
 
 // Map routes to floors
 const FLOOR_MAP: Record<string, string> = {
   "/": "1",
   "/top-rated": "2",
   "/movies": "3",
-  "/search": "S"
+  "/search": "S",
+  "/favorites": "L"
 };
 
 const LABEL_MAP: Record<string, string> = {
@@ -20,12 +22,42 @@ const LABEL_MAP: Record<string, string> = {
   "2": "Top Rated",
   "3": "Movies",
   "S": "Archive",
+  "L": "Logbook",
   "Detail": "Detail",
   "??": "Destiny"
 }
 
 export default function ElevatorFrame({ children }: { children: ReactNode }) {
   const { currentFloor, isMoving, setFloor, callElevator, initiateTravel, arriveAtFloor } = useElevatorSystem();
+  // We can use our audio hook though we don't have global state for BGM yet, 
+  // setting up the UI for now.
+  const { playClick } = useAudioElement();
+  const [bgmPlaying, setBgmPlaying] = useState(false);
+  
+  // Ref for BGM
+  const bgmRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    bgmRef.current = new Audio('https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3');
+    bgmRef.current.loop = true;
+    bgmRef.current.volume = 0.3;
+    
+    return () => {
+        bgmRef.current?.pause();
+    }
+  }, []);
+
+  const toggleBgm = () => {
+      if (!bgmRef.current) return;
+      
+      if (bgmPlaying) {
+          bgmRef.current.pause();
+      } else {
+          bgmRef.current.play().catch(e => console.log("Audio autoplay block", e));
+      }
+      setBgmPlaying(!bgmPlaying);
+  };
+  
   const pathname = usePathname();
   const router = useRouter(); 
 
@@ -37,6 +69,8 @@ export default function ElevatorFrame({ children }: { children: ReactNode }) {
             setFloor("Detail");
         } else if (pathname === "/search") {
             setFloor("S");
+        } else if (pathname === "/favorites") {
+            setFloor("L");
         } else {
             const floor = FLOOR_MAP[pathname] || "1";
             setFloor(floor);
@@ -46,11 +80,13 @@ export default function ElevatorFrame({ children }: { children: ReactNode }) {
 
   const handleFloorChange = (targetFloor: string, path: string) => {
     if (targetFloor === currentFloor || isMoving) return;
+    playClick();
     callElevator(path, targetFloor);
   };
 
   const handleRandom = async () => {
       if (isMoving) return;
+      playClick();
       
       // 1. Close Doors with "??" indicator
       initiateTravel("??");
@@ -82,8 +118,17 @@ export default function ElevatorFrame({ children }: { children: ReactNode }) {
     <div className="fixed inset-0 w-full h-full bg-wall-dark flex flex-col z-0 overflow-hidden font-sans">
       
       {/* Top Panel - Floor Indicator */}
-      <div className="h-24 bg-wall-light border-b-8 border-wall-dark flex items-center justify-center shadow-lg z-50 relative shrink-0">
-         {/* Bezel */}
+      <div className="h-24 bg-wall-light border-b-8 border-wall-dark flex items-center justify-between px-8 shadow-lg z-50 relative shrink-0">
+         
+         {/* Speaker Toggle (Left) */}
+         <button 
+           onClick={toggleBgm}
+           className={`p-3 rounded-full border-2 transition-all duration-300 ${bgmPlaying ? "bg-brass-accent text-wall-dark border-transparent shadow-[0_0_15px_rgba(255,191,0,0.5)]" : "border-brass-accent/30 text-brass-accent/50 hover:text-brass-accent"}`}
+         >
+             {bgmPlaying ? <Volume2 /> : <VolumeX />}
+         </button>
+
+         {/* Bezel (Center) */}
         <div className="bg-black px-12 py-3 rounded-lg border-4 border-brass-accent shadow-[0_0_30px_rgba(255,191,0,0.3)] min-w-[340px] text-center relative overflow-hidden">
            {/* Glass Reflection */}
            <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
@@ -92,6 +137,9 @@ export default function ElevatorFrame({ children }: { children: ReactNode }) {
              {LABEL_MAP[currentFloor] || currentFloor}
            </span>
         </div>
+
+        {/* Spacer (Right) */}
+        <div className="w-12" />
       </div>
 
       <div className="flex flex-1 relative overflow-hidden">
@@ -117,6 +165,7 @@ export default function ElevatorFrame({ children }: { children: ReactNode }) {
            <ControlBtn label="1" sub="Trend" active={currentFloor === "1"} onClick={() => handleFloorChange("1", "/")} />
            <ControlBtn label="2" sub="Top" active={currentFloor === "2"} onClick={() => handleFloorChange("2", "/top-rated")} />
            <ControlBtn label="3" sub="Mov" active={currentFloor === "3"} onClick={() => handleFloorChange("3", "/movies")} />
+           <ControlBtn label="L" sub="Log" icon={<Heart size={20} />} active={currentFloor === "L"} onClick={() => handleFloorChange("L", "/favorites")} />
            
            <div className="h-2 border-b-2 border-wall-dark/20 w-16 my-2" />
            

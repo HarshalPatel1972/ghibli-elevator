@@ -27,6 +27,11 @@ export interface Anime {
   synopsis: string;
   year: number;
   genres: { name: string }[];
+  trailer?: {
+      youtube_id: string;
+      url: string;
+      embed_url: string;
+  }
 }
 
 export const animeClient = {
