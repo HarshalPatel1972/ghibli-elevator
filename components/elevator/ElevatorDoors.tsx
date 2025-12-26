@@ -6,12 +6,13 @@ import { useElevatorStore } from '@/store/useElevatorStore';
 export default function ElevatorDoors() {
   const { isDoorOpen } = useElevatorStore();
 
+  // Explicitly defined transition prop for Framer Motion
   const springTransition = {
     type: "spring",
     stiffness: 60,
     damping: 15,
     restDelta: 0.001
-  };
+  } as const; // using as const helps, or we can just inline it.
 
   return (
     <div className="absolute inset-0 pointer-events-none z-40 flex overflow-hidden">
