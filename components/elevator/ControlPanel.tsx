@@ -26,10 +26,10 @@ export default function ControlPanel({ currentFloor, handleFloorChange, handleRa
            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/brushed-alum.png')] opacity-20 pointer-events-none" />
 
            {/* Scrollable Container for Desktop Vertical Height */}
-           <div className="flex md:flex-col w-full h-full md:overflow-y-auto scrollbar-hide items-center justify-around md:justify-start gap-4 md:gap-[2vh] py-2">
+           <div className="flex md:flex-col w-full h-full md:overflow-y-auto no-scrollbar items-center justify-around md:justify-start gap-4 md:gap-[2vh] pt-2 pb-12">
                
                {/* Identity Card (Auth) */}
-               <div className="md:mb-4">
+               <div className="md:mb-4 shrink-0">
                  <button 
                     onClick={user ? logout : login}
                     className="flex flex-col items-center group relative"
@@ -47,7 +47,7 @@ export default function ControlPanel({ currentFloor, handleFloorChange, handleRa
                     
                     {/* Tooltip */}
                      <span className="hidden group-hover:block md:block absolute -left-20 md:-left-24 top-1/2 -translate-y-1/2 bg-black/90 text-white text-[10px] font-bold px-2 py-1 rounded border border-white/20 tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
-                        {user ? "EJECT ID" : "INSERT ID"}
+                        {user ? "SIGN OUT" : "LOGIN"}
                     </span>
                  </button>
                </div>
