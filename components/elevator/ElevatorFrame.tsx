@@ -46,9 +46,13 @@ export default function ElevatorFrame({ children }: { children: ReactNode }) {
     <div className="fixed inset-0 w-full h-full bg-wall-dark flex flex-col z-0 overflow-hidden font-sans">
       
       {/* Top Panel - Floor Indicator */}
-      <div className="h-20 bg-wall-light border-b-8 border-wall-dark flex items-center justify-center shadow-lg z-50 relative shrink-0">
-        <div className="bg-black px-12 py-3 rounded-lg border-4 border-brass-accent shadow-[0_0_20px_rgba(212,175,55,0.2)] min-w-[300px] text-center">
-           <span className="text-red-500 font-mono text-4xl animate-pulse tracking-widest drop-shadow-[0_0_8px_rgba(255,0,0,0.8)]">
+      <div className="h-24 bg-wall-light border-b-8 border-wall-dark flex items-center justify-center shadow-lg z-50 relative shrink-0">
+         {/* Bezel */}
+        <div className="bg-black px-12 py-3 rounded-lg border-4 border-brass-accent shadow-[0_0_30px_rgba(255,191,0,0.3)] min-w-[340px] text-center relative overflow-hidden">
+           {/* Glass Reflection */}
+           <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
+           
+           <span className="text-[#ffbf00] font-display text-5xl tracking-widest drop-shadow-[0_0_10px_rgba(255,191,0,0.8)] relative z-10" style={{ textShadow: "0 0 15px rgba(255, 191, 0, 0.6), 0 0 30px rgba(255, 191, 0, 0.4)" }}>
              {LABEL_MAP[currentFloor] || currentFloor}
            </span>
         </div>
@@ -56,9 +60,12 @@ export default function ElevatorFrame({ children }: { children: ReactNode }) {
 
       <div className="flex flex-1 relative overflow-hidden">
         {/* Main Viewport */}
-        <div className="flex-1 relative bg-bg-paper overflow-hidden z-10 flex flex-col">
+        <div className="flex-1 relative bg-bg-paper overflow-hidden z-10 flex flex-col shadow-[inset_0_0_100px_rgba(0,0,0,0.5)]">
+           {/* Vignette Overlay */}
+           <div className="absolute inset-0 pointer-events-none z-20 shadow-[inset_0_0_150px_rgba(0,0,0,0.6)]" />
+
            {/* The content area */}
-           <div className="flex-1 overflow-y-auto relative no-scrollbar">
+           <div className="flex-1 overflow-y-auto relative no-scrollbar z-10">
                {children}
            </div>
            

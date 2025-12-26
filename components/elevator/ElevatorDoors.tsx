@@ -6,42 +6,61 @@ import { useElevatorStore } from '@/store/useElevatorStore';
 export default function ElevatorDoors() {
   const { isDoorOpen } = useElevatorStore();
 
-  // Doors: Closed = width 50% each. Open = width 0% each.
-  // Delay: When opening (isDoorOpen: false -> true), we want a delay? 
-  // User: "Add a 0.5s delay when closed to simulate travel time before opening again."
-  // So when we go to "open" state, we delay.
+  const springTransition = {
+    type: "spring",
+    stiffness: 60,
+    damping: 15,
+    restDelta: 0.001
+  };
 
   return (
-    <div className="absolute inset-0 pointer-events-none z-40 flex">
-      {/* Left Door */}
+    <div className="absolute inset-0 pointer-events-none z-40 flex overflow-hidden">
+      {/* 
+         DOOR LEFT 
+         Closed: x = 0%
+         Open: x = -100% (slide to left)
+      */}
       <motion.div
-        initial={{ width: "50%" }} // Start closed? Or Open? Typically start Open or Closed depending on initial state.
-        animate={{ width: isDoorOpen ? "0%" : "50%" }}
-        transition={{ 
-          duration: 1.0, 
-          ease: [0.4, 0, 0.2, 1], // Custom bezier for heavy feel
-          delay: isDoorOpen ? 0.5 : 0 // Delay opening
+        initial={{ x: "0%" }}
+        animate={{ x: isDoorOpen ? "-100%" : "0%" }}
+        transition={springTransition}
+        className="relative w-1/2 h-full border-r border-black"
+        style={{
+            background: 'var(--door-gradient)'
         }}
-        className="h-full bg-door-color border-r-2 border-black/30 shadow-[10px_0_20px_rgba(0,0,0,0.5)] relative overflow-hidden"
       >
-        {/* Texture/Detail */}
-        <div className="absolute right-0 h-full w-1 bg-black/10" />
-        <div className="absolute right-4 top-1/2 -translate-y-1/2 w-3 h-48 bg-wall-dark/60 rounded-full shadow-inner border border-white/5" />
+        {/* Metallic Noise Texture */}
+        <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/brushed-alum.png')]" />
+
+        {/* Shadow seam on the right edge */}
+        <div className="absolute right-0 top-0 bottom-0 w-4 bg-gradient-to-l from-black/50 to-transparent" />
+        
+        {/* Handle / Detail */}
+        <div className="absolute right-8 top-1/2 -translate-y-1/2 w-2 h-48 bg-black/20 rounded-full shadow-inner border-r border-white/10" />
       </motion.div>
 
-      {/* Right Door */}
+      {/* 
+         DOOR RIGHT
+         Closed: x = 0% 
+         Open: x = 100% (slide to right)
+      */}
       <motion.div
-        initial={{ width: "50%" }}
-        animate={{ width: isDoorOpen ? "0%" : "50%" }}
-        transition={{ 
-          duration: 1.0, 
-          ease: [0.4, 0, 0.2, 1],
-          delay: isDoorOpen ? 0.5 : 0 
+        initial={{ x: "0%" }}
+        animate={{ x: isDoorOpen ? "100%" : "0%" }}
+        transition={springTransition}
+        className="relative w-1/2 h-full border-l border-black"
+        style={{
+            background: 'var(--door-gradient)'
         }}
-        className="h-full bg-door-color border-l-2 border-black/30 shadow-[-10px_0_20px_rgba(0,0,0,0.5)] relative overflow-hidden"
       >
-         <div className="absolute left-0 h-full w-1 bg-black/10" />
-         <div className="absolute left-4 top-1/2 -translate-y-1/2 w-3 h-48 bg-wall-dark/60 rounded-full shadow-inner border border-white/5" />
+         {/* Metallic Noise Texture */}
+         <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/brushed-alum.png')]" />
+         
+         {/* Shadow seam on the left edge */}
+         <div className="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-black/50 to-transparent" />
+
+         {/* Handle / Detail */}
+         <div className="absolute left-8 top-1/2 -translate-y-1/2 w-2 h-48 bg-black/20 rounded-full shadow-inner border-l border-white/10" />
       </motion.div>
     </div>
   );

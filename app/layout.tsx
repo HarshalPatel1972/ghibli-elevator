@@ -1,21 +1,22 @@
 import type { Metadata } from "next";
-import { Comfortaa, Noto_Sans_JP } from "next/font/google";
+import { Bangers, M_PLUS_Rounded_1c } from "next/font/google";
 import "./globals.css";
 import ElevatorFrame from "@/components/elevator/ElevatorFrame";
 
-const comfortaa = Comfortaa({
-  variable: "--font-comfortaa",
+const bangers = Bangers({
+  weight: "400", // Bangers only comes in 400
+  variable: "--font-bangers",
   subsets: ["latin"],
 });
 
-const notoSansJP = Noto_Sans_JP({
-  variable: "--font-noto-sans-jp",
+const mPlusRounded = M_PLUS_Rounded_1c({
+  weight: ["100", "300", "400", "500", "700", "800", "900"],
+  variable: "--font-m-plus",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "GhibliElevator AnimeDB",
+  title: "GhibliElevator AnimeDB V2",
   description: "A Studio Ghibli inspired anime discovery elevator.",
 };
 export default function RootLayout({
@@ -26,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${comfortaa.variable} ${notoSansJP.variable} antialiased`}
+        className={`${bangers.variable} ${mPlusRounded.variable} antialiased`}
       >
         <ElevatorFrame>
           {children}
