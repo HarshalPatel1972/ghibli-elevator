@@ -71,5 +71,15 @@ export const animeClient = {
         console.error("Search failed", error);
         return [];
     }
+  },
+
+  getAnimeById: async (id: string): Promise<Anime | null> => {
+    try {
+      const response = await client.get(`/anime/${id}`);
+      return response.data.data;
+    } catch (error) {
+      console.error(`Failed to fetch anime ${id}`, error);
+      return null;
+    }
   }
 };

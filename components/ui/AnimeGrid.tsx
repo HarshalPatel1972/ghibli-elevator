@@ -2,8 +2,11 @@
 
 import { Anime } from '@/api/animeClient';
 import { motion } from 'framer-motion';
+import { useElevatorSystem } from '@/hooks/useElevatorSystem';
 
 export default function AnimeGrid({ items, title }: { items: Anime[], title: string }) {
+   const { callElevator } = useElevatorSystem();
+
    return (
      <div className="p-8 pb-32">
         <motion.h1 
@@ -19,6 +22,7 @@ export default function AnimeGrid({ items, title }: { items: Anime[], title: str
            {items.map((anime, index) => (
              <motion.div
                key={anime.mal_id}
+               onClick={() => callElevator(`/anime/${anime.mal_id}`, "Detail")}
                initial={{ opacity: 0, y: 20 }}
                animate={{ opacity: 1, y: 0 }}
                transition={{ delay: 0.2 + (index * 0.05) }} // Staggered entry

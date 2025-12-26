@@ -5,6 +5,7 @@ import { useElevatorStore } from '@/store/useElevatorStore';
 import { useRouter, usePathname } from 'next/navigation';
 import { Shuffle, Search } from 'lucide-react';
 import ElevatorDoors from './ElevatorDoors';
+import { useElevatorSystem } from '@/hooks/useElevatorSystem';
 
 // Map routes to floors
 const FLOOR_MAP: Record<string, string> = {
@@ -20,39 +21,25 @@ const LABEL_MAP: Record<string, string> = {
 }
 
 export default function ElevatorFrame({ children }: { children: ReactNode }) {
-  const { currentFloor, initiateTravel, setFloor, arriveAtFloor, isMoving } = useElevatorStore();
-  const router = useRouter();
+  const { currentFloor, isMoving, setFloor, callElevator } = useElevatorSystem();
   const pathname = usePathname();
 
   // Sync initial floor based on path
   useEffect(() => {
-    // Only set if we aren't moving to avoid overriding during animation
     if (!isMoving) {
-        const floor = FLOOR_MAP[pathname] || "1";
-        setFloor(floor);
+        // Check for Detail pages
+        if (pathname.includes("/anime/")) {
+            setFloor("Detail");
+        } else {
+            const floor = FLOOR_MAP[pathname] || "1";
+            setFloor(floor);
+        }
     }
   }, [pathname]);
 
   const handleFloorChange = (targetFloor: string, path: string) => {
     if (targetFloor === currentFloor || isMoving) return;
-    
-    // 1. Close Doors / Start Moving
-    initiateTravel(targetFloor);
-    
-    // 2. Wait for doors to close (e.g. 1s)
-    setTimeout(() => {
-        // 3. Navigate
-        router.push(path);
-        
-        // 4. Update Floor Store
-        setFloor(targetFloor);
-        
-        // 5. Arrive (Open doors)
-        // Add a bit more delay for the "travel" feel
-        setTimeout(() => {
-             arriveAtFloor();
-        }, 1500); 
-    }, 1000); 
+    callElevator(path, targetFloor);
   };
 
   return (
