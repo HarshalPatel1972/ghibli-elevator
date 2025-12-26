@@ -47,9 +47,9 @@ export const useElevatorStore = create<ElevatorState>()(
           if (favorites.length === 0) return;
 
           // Batch write local favorites to cloud
-          const batch = writeBatch(db);
+          const batch = writeBatch(db!);
           favorites.forEach(anime => {
-             const ref = doc(db, `users/${user.uid}/favorites/${anime.mal_id}`);
+             const ref = doc(db!, `users/${user.uid}/favorites/${anime.mal_id}`);
              batch.set(ref, anime); // Upload
           });
           
