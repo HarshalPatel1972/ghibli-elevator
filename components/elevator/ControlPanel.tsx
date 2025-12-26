@@ -20,13 +20,13 @@ export default function ControlPanel({ currentFloor, handleFloorChange, handleRa
              w-full h-auto border-t-4 border-wall-dark flex flex-row items-center justify-around py-4 order-last
              
              /* Desktop: Right Panel */
-             md:w-32 md:h-full md:border-l-8 md:border-t-0 md:flex-col md:py-8 md:gap-4 md:order-none md:overflow-hidden
+             md:w-32 md:h-full md:border-l-8 md:border-t-0 md:flex-col md:py-8 md:gap-4 md:order-none
         ">
            {/* Texture overlay */}
            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/brushed-alum.png')] opacity-20 pointer-events-none" />
 
-           {/* Scrollable Container for Desktop Vertical Height */}
-           <div className="flex md:flex-col w-full h-full md:overflow-y-auto no-scrollbar items-center justify-around md:justify-start gap-4 md:gap-[2vh] pt-2 pb-12">
+           {/* Desktop Vertical Container - REMOVE SCROLL to allow popouts */}
+           <div className="flex md:flex-col w-full h-full md:overflow-visible items-center justify-around md:justify-center gap-4 md:gap-3 pt-2 pb-8">
                
                {/* Identity Card (Auth) */}
                <div className="md:mb-4 shrink-0">
@@ -45,15 +45,15 @@ export default function ControlPanel({ currentFloor, handleFloorChange, handleRa
                         )}
                     </div>
                     
-                    {/* Tooltip */}
-                     <span className="hidden group-hover:block md:block absolute -left-20 md:-left-24 top-1/2 -translate-y-1/2 bg-black/90 text-white text-[10px] font-bold px-2 py-1 rounded border border-white/20 tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                    {/* Tooltip - Left Side */}
+                     <span className="hidden group-hover:block md:block absolute right-[130%] top-1/2 -translate-y-1/2 bg-black/90 text-white text-[10px] font-bold px-2 py-1 rounded border border-white/20 tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-[100] shadow-xl">
                         {user ? "SIGN OUT" : "LOGIN"}
                     </span>
                  </button>
                </div>
 
                {/* Floor Controls */}
-               <div className="flex md:flex-col gap-2 md:gap-[2vh]">
+               <div className="flex md:flex-col gap-2 md:gap-2">
                    <ControlBtn label="1" sub="TRENDING" active={currentFloor === "1"} onClick={() => handleFloorChange("1", "/")} />
                    <ControlBtn label="2" sub="TOP RATED" active={currentFloor === "2"} onClick={() => handleFloorChange("2", "/top-rated")} />
                    <ControlBtn label="3" sub="MOVIES" active={currentFloor === "3"} onClick={() => handleFloorChange("3", "/movies")} />
@@ -64,7 +64,7 @@ export default function ControlPanel({ currentFloor, handleFloorChange, handleRa
                <div className="h-8 w-[1px] bg-wall-dark/20 mx-2 md:h-2 md:w-16 md:bg-wall-dark/20 md:border-b-2 md:mx-0 md:my-2 shrink-0" />
                
                {/* Utility Controls */}
-               <div className="flex md:flex-col gap-2 md:gap-[2vh]">
+               <div className="flex md:flex-col gap-2 md:gap-2">
                    <ControlBtn label="L" sub="FAVORITES" icon={<Heart size={18} />} active={currentFloor === "L"} onClick={() => handleFloorChange("L", "/favorites")} />
                    <ControlBtn label="R" sub="RANDOM" icon={<Shuffle size={18} />} active={currentFloor === "??"} onClick={handleRandom} />
                    <ControlBtn label="S" sub="SEARCH" icon={<Search size={18} />} active={currentFloor === "S"} onClick={() => handleFloorChange("S", "/search")} />
@@ -95,8 +95,11 @@ function ControlBtn({ label, sub, onClick, active, icon }: any) {
             {icon ? icon : <span className="font-display font-bold text-lg md:text-xl leading-none tracking-widest">{label}</span>}
             
             {/* Anime Speed Line / Shine */}
+            <div className="absolute top-1 left-2 w-2 h-2 rounded-full bg-white/60 blur-[0.5px]" />
+            
+            {/* Sub label tooltip styled as anime caption - Left Side */}
             {sub && (
-                <span className="hidden group-hover:block md:block absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-black/90 text-[#ffd700] text-[10px] font-bold px-2 py-1 rounded backdrop-blur-sm border border-[#ffd700]/30 tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">
+                <span className="hidden group-hover:block md:block absolute right-[130%] top-1/2 -translate-y-1/2 bg-black/90 text-[#ffd700] text-[10px] font-bold px-2 py-1 rounded backdrop-blur-sm border border-[#ffd700]/30 tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-[100] shadow-xl">
                     {sub}
                 </span>
             )}
