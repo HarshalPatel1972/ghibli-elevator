@@ -7,6 +7,7 @@ import { Shuffle, Search, Volume2, VolumeX, Heart } from 'lucide-react';
 import ElevatorDoors from './ElevatorDoors';
 import { useElevatorSystem } from '@/hooks/useElevatorSystem';
 import { useAudioElement } from '../infrastructure/AudioSystem';
+import ControlPanel from './ControlPanel';
 
 // Map routes to floors
 const FLOOR_MAP: Record<string, string> = {
@@ -196,68 +197,15 @@ export default function ElevatorFrame({ children }: { children: ReactNode }) {
         </div>
 
         {/* Control Panel (Responsive) */}
-        <aside className="
-             bg-wall-light 
-             shadow-2xl z-50 relative shrink-0 
-             
-             /* Mobile: Bottom Bar */
-             w-full h-auto border-t-4 border-wall-dark flex flex-row items-center justify-around py-4 order-last
-             
-             /* Desktop: Right Panel */
-             md:w-32 md:h-full md:border-l-8 md:border-t-0 md:flex-col md:py-12 md:gap-8 md:order-none
-        ">
-           {/* Texture overlay */}
-           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/brushed-alum.png')] opacity-20 pointer-events-none" />
-           
-           {/* Floor Controls */}
-           <div className="flex md:flex-col gap-2 md:gap-8">
-               <ControlBtn label="1" sub="Trend" active={currentFloor === "1"} onClick={() => handleFloorChange("1", "/")} />
-               <ControlBtn label="2" sub="Top" active={currentFloor === "2"} onClick={() => handleFloorChange("2", "/top-rated")} />
-               <ControlBtn label="3" sub="Mov" active={currentFloor === "3"} onClick={() => handleFloorChange("3", "/movies")} />
-               <ControlBtn label="G" sub="Lobby" active={currentFloor === "G"} onClick={() => handleFloorChange("G", "/guestbook")} />
-           </div>
-
-           {/* Divider */}
-           <div className="h-8 w-[1px] bg-wall-dark/20 mx-2 md:h-2 md:w-16 md:bg-wall-dark/20 md:border-b-2 md:mx-0 md:my-2" />
-           
-           {/* Utility Controls */}
-           <div className="flex md:flex-col gap-2 md:gap-6">
-               <ControlBtn label="L" sub="Log" icon={<Heart size={18} />} active={currentFloor === "L"} onClick={() => handleFloorChange("L", "/favorites")} />
-               <ControlBtn label="R" icon={<Shuffle size={18} />} active={currentFloor === "??"} onClick={handleRandom} />
-               <ControlBtn label="S" icon={<Search size={18} />} active={currentFloor === "S"} onClick={() => handleFloorChange("S", "/search")} />
-           </div>
-        </aside>
+        <ControlPanel 
+            currentFloor={currentFloor} 
+            handleFloorChange={handleFloorChange} 
+            handleRandom={handleRandom} 
+        />
       </div>
 
       {/* Bottom Trim (Desktop Only) */}
       <div className="hidden md:block h-16 bg-wall-dark border-t-8 border-[#3e342a] z-50 shrink-0" />
     </div>
   );
-}
-
-function ControlBtn({ label, sub, onClick, active, icon }: any) {
-    return (
-        <button 
-           onClick={onClick}
-           className={`
-             rounded-full border-[3px] md:border-4 flex flex-col items-center justify-center transition-all duration-200 active:scale-90 relative group
-             w-10 h-10 md:w-12 md:h-12
-             ${active 
-               ? 'bg-[#ffeebb] border-[#ffb300] text-[#554400] shadow-[0_0_15px_rgba(255,200,0,0.8)] scale-110 z-10' 
-               : 'bg-brass-accent border-wall-dark text-wall-dark shadow-[4px_4px_0px_rgba(0,0,0,0.3)] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_rgba(0,0,0,0.2)] hover:bg-[#e6c200]'}
-           `}
-        >
-            {icon ? icon : <span className="font-display font-bold text-lg md:text-xl leading-none tracking-widest">{label}</span>}
-            
-            {/* Anime Speed Line / Shine */}
-            <div className="absolute top-1 left-2 w-2 h-2 rounded-full bg-white/60 blur-[0.5px]" />
-            
-            {/* Sub label tooltip styled as anime caption */}
-            {sub && (
-                <span className="hidden group-hover:block md:block absolute -left-16 md:-left-20 bg-black/80 text-[#ffd700] text-[10px] font-bold px-2 py-1 rounded backdrop-blur-sm border border-[#ffd700]/30 tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-20">
-                    {sub}
-                </span>
-            )}
-        </button>
-    )
 }

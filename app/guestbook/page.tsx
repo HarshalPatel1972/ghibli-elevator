@@ -1,25 +1,33 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGuestbook } from '@/hooks/useGuestbook';
+import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
 import { Send } from 'lucide-react';
 
 export default function GuestbookPage() {
     const { entries, addEntry } = useGuestbook();
+    const { user } = useAuth(); // Auth Hook
+    
+    // State for Name only if guest
     const [name, setName] = useState('');
     const [message, setMessage] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!name || !message) return;
+        
+        // Determine Author Name
+        const authorName = user?.displayName || name;
+        
+        if (!authorName || !message) return;
         
         setIsSubmitting(true);
         try {
-            await addEntry(name, message);
+            await addEntry(authorName, message);
             setMessage('');
-            // Optional: Keep name for convenience
+            // Optional: Keep name for convenience if guest
         } catch (error) {
             console.error("Failed to post", error);
         }
@@ -71,15 +79,22 @@ export default function GuestbookPage() {
             {/* Input Area */}
             <div className="p-6 bg-white border-t-4 border-[#e8e5d0] sticky bottom-0 z-30 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
                 <form onSubmit={handleSubmit} className="max-w-4xl mx-auto flex flex-col md:flex-row gap-4">
-                    <input 
-                        type="text" 
-                        placeholder="Your Name" 
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="bg-[#f4f1ea] border-2 border-[#e8e5d0] rounded px-4 py-3 font-display focus:border-brass-accent focus:outline-none w-full md:w-48"
-                        maxLength={20}
-                        required
-                    />
+                    {!user && (
+                        <input 
+                            type="text" 
+                            placeholder="Your Name" 
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className="bg-[#f4f1ea] border-2 border-[#e8e5d0] rounded px-4 py-3 font-display focus:border-brass-accent focus:outline-none w-full md:w-48"
+                            maxLength={20}
+                            required
+                        />
+                    )}
+                    {user && (
+                        <div className="hidden md:flex items-center px-4 font-display text-wall-dark/50 select-none">
+                            Posting as {user.displayName}
+                        </div>
+                    )}
                     <input 
                         type="text" 
                         placeholder="Write a message (140 chars)..." 
