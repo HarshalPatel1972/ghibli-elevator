@@ -42,6 +42,7 @@ export const useElevatorStore = create<ElevatorState>()(
       setFavorites: (favorites) => set({ favorites }),
 
       syncLocalToCloud: async (user) => {
+          if (!db || !user) return;
           const { favorites } = get();
           if (favorites.length === 0) return;
 
@@ -70,13 +71,13 @@ export const useElevatorStore = create<ElevatorState>()(
               set({ favorites: [...favorites, anime] });
           }
 
-          // Cloud Sync
-          if (user) {
-              const ref = doc(db, `users/${user.uid}/favorites/${anime.mal_id}`);
+          // Sync to cloud if logged in
+          if (user && db) {
+              const docRef = doc(db, `users/${user.uid}/favorites/${anime.mal_id}`);
               if (exists) {
-                  await deleteDoc(ref);
+                  await deleteDoc(docRef);
               } else {
-                  await setDoc(ref, anime);
+                  await setDoc(docRef, anime);
               }
           }
       },

@@ -14,6 +14,8 @@ export function useGuestbook() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        if (!db) return;
+
         const q = query(
             collection(db, 'guestbook'), 
             orderBy('createdAt', 'desc'), 
@@ -25,19 +27,19 @@ export function useGuestbook() {
                 id: doc.id,
                 ...doc.data()
             })) as GuestbookEntry[];
-            return setEntries(newEntries);
+            setEntries(newEntries);
         });
 
-        setLoading(false);
         return () => unsubscribe();
     }, []);
 
     const addEntry = async (name: string, message: string) => {
-        if (!name.trim() || !message.trim()) return;
-        
+        if (!db) return;
+        if (!message.trim()) return;
+
         await addDoc(collection(db, 'guestbook'), {
-            name: name.slice(0, 20),
-            message: message.slice(0, 140),
+            name: name.trim() || 'Anonymous Traveler',
+            message: message.trim(),
             createdAt: serverTimestamp()
         });
     };
