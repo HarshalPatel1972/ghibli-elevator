@@ -54,10 +54,10 @@ export default function ControlPanel({ currentFloor, handleFloorChange, handleRa
 
                {/* Floor Controls */}
                <div className="flex md:flex-col gap-2 md:gap-[2vh]">
-                   <ControlBtn label="1" sub="Trend" active={currentFloor === "1"} onClick={() => handleFloorChange("1", "/")} />
-                   <ControlBtn label="2" sub="Top" active={currentFloor === "2"} onClick={() => handleFloorChange("2", "/top-rated")} />
-                   <ControlBtn label="3" sub="Mov" active={currentFloor === "3"} onClick={() => handleFloorChange("3", "/movies")} />
-                   <ControlBtn label="G" sub="Lobby" active={currentFloor === "G"} onClick={() => handleFloorChange("G", "/guestbook")} />
+                   <ControlBtn label="1" sub="TRENDING" active={currentFloor === "1"} onClick={() => handleFloorChange("1", "/")} />
+                   <ControlBtn label="2" sub="TOP RATED" active={currentFloor === "2"} onClick={() => handleFloorChange("2", "/top-rated")} />
+                   <ControlBtn label="3" sub="MOVIES" active={currentFloor === "3"} onClick={() => handleFloorChange("3", "/movies")} />
+                   <ControlBtn label="G" sub="GUESTBOOK" active={currentFloor === "G"} onClick={() => handleFloorChange("G", "/guestbook")} />
                </div>
 
                {/* Divider */}
@@ -65,9 +65,9 @@ export default function ControlPanel({ currentFloor, handleFloorChange, handleRa
                
                {/* Utility Controls */}
                <div className="flex md:flex-col gap-2 md:gap-[2vh]">
-                   <ControlBtn label="L" sub="Log" icon={<Heart size={18} />} active={currentFloor === "L"} onClick={() => handleFloorChange("L", "/favorites")} />
-                   <ControlBtn label="R" icon={<Shuffle size={18} />} active={currentFloor === "??"} onClick={handleRandom} />
-                   <ControlBtn label="S" icon={<Search size={18} />} active={currentFloor === "S"} onClick={() => handleFloorChange("S", "/search")} />
+                   <ControlBtn label="L" sub="FAVORITES" icon={<Heart size={18} />} active={currentFloor === "L"} onClick={() => handleFloorChange("L", "/favorites")} />
+                   <ControlBtn label="R" sub="RANDOM" icon={<Shuffle size={18} />} active={currentFloor === "??"} onClick={handleRandom} />
+                   <ControlBtn label="S" sub="SEARCH" icon={<Search size={18} />} active={currentFloor === "S"} onClick={() => handleFloorChange("S", "/search")} />
                </div>
            </div>
         </aside>
@@ -80,10 +80,15 @@ function ControlBtn({ label, sub, onClick, active, icon }: any) {
            onClick={onClick}
            className={`
              rounded-full border-[3px] md:border-4 flex flex-col items-center justify-center transition-all duration-200 active:scale-90 relative group
-             w-10 h-10 md:w-12 md:h-12 shrink-0
+             w-10 h-10 md:w-12 md:h-12 shrink-0 z-10 hover:z-50
+             
+             /* Responsive Sizing for Short Screens */
+             @media (max-height: 800px) {
+                 md:w-12 md:h-12
+             }
              
              ${active 
-               ? 'bg-[#ffeebb] border-[#ffb300] text-[#554400] shadow-[0_0_15px_rgba(255,200,0,0.8)] scale-110 z-10' 
+               ? 'bg-[#ffeebb] border-[#ffb300] text-[#554400] shadow-[0_0_15px_rgba(255,200,0,0.8)] scale-110 z-20' 
                : 'bg-brass-accent border-wall-dark text-wall-dark shadow-[4px_4px_0px_rgba(0,0,0,0.3)] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_rgba(0,0,0,0.2)] hover:bg-[#e6c200]'}
            `}
         >
@@ -92,9 +97,9 @@ function ControlBtn({ label, sub, onClick, active, icon }: any) {
             {/* Anime Speed Line / Shine */}
             <div className="absolute top-1 left-2 w-2 h-2 rounded-full bg-white/60 blur-[0.5px]" />
             
-            {/* Sub label tooltip styled as anime caption */}
+            {/* Sub label tooltip styled as anime caption - Adjusted Position & Z-Index */}
             {sub && (
-                <span className="hidden group-hover:block md:block absolute -left-16 md:-left-20 bg-black/80 text-[#ffd700] text-[10px] font-bold px-2 py-1 rounded backdrop-blur-sm border border-[#ffd700]/30 tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-20">
+                <span className="hidden group-hover:block md:block absolute right-[120%] md:right-[140%] top-1/2 -translate-y-1/2 bg-black/90 text-[#ffd700] text-[10px] font-bold px-2 py-1 rounded backdrop-blur-sm border border-[#ffd700]/30 tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">
                     {sub}
                 </span>
             )}
